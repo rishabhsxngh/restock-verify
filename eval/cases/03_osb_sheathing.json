@@ -1,0 +1,10 @@
+{
+  "name": "osb_pallet",
+  "sku": "OSB 7/16 4x8 sheathing",
+  "notes": "Partial pallet, 34 sheets, stored indoors, over-order.",
+  "expected": {
+    "category": "lumber",
+    "condition_tier": "new_surplus",
+    "specs": {"thickness": "7/16"}
+  }
+}

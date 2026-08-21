@@ -1,0 +1,12 @@
+{
+  "name": "electrical_panel_sku_only",
+  "sku": "Square D QO140M200PC",
+  "notes": "Factory sealed, overstock from a cancelled commercial order.",
+  "expected": {
+    "category": "electrical",
+    "condition_tier": "new_surplus",
+    "brand": "Square D",
+    "model_number": "QO140M200PC",
+    "specs": {"amperage": "200 a"}
+  }
+}

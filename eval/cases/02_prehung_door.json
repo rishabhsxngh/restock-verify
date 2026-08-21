@@ -1,0 +1,10 @@
+{
+  "name": "prehung_door_used",
+  "sku": "JELD-WEN 36x80 prehung interior",
+  "notes": "Removed during a remodel, hinges intact, minor scuffs on frame.",
+  "expected": {
+    "category": "doors_windows",
+    "condition_tier": "used_serviceable",
+    "brand": "JELD-WEN"
+  }
+}

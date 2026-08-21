@@ -1,0 +1,8 @@
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+extend-select = ["I"]
+# B008: FastAPI's Form/File/Depends in defaults is the framework's idiom.
+ignore = ["B008"]
