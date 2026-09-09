@@ -1,5 +1,7 @@
 # ReStock Verify
 
+**Live demo:** https://restock-verify-336252879714.us-central1.run.app
+
 AI-powered listing verification for a B2B surplus building-materials marketplace.
 
 A supplier photographs a lot of surplus stock and submits it with a SKU. A
