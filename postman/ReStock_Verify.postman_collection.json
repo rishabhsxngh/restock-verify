@@ -1,0 +1,79 @@
+{
+  "info": {
+    "name": "ReStock Verify",
+    "description": "Requests for the ReStock Verify listing-verification API. Set the `base_url` variable to http://127.0.0.1:8000 for local or your Cloud Run URL.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [{ "key": "base_url", "value": "http://127.0.0.1:8000" }],
+  "item": [
+    {
+      "name": "Health check",
+      "request": { "method": "GET", "url": "{{base_url}}/healthz" },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('200 OK', () => pm.response.to.have.status(200));",
+          "pm.test('status is ok', () => pm.expect(pm.response.json().status).to.eql('ok'));"
+        ] }
+      }]
+    },
+    {
+      "name": "Draft listing (SKU only)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/listings/draft",
+        "body": { "mode": "formdata", "formdata": [
+          { "key": "sku", "value": "Square D QO140M200PC", "type": "text" },
+          { "key": "notes", "value": "Factory sealed, cancelled commercial order.", "type": "text" }
+        ] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('200 OK', () => pm.response.to.have.status(200));",
+          "const j = pm.response.json();",
+          "pm.test('electrical is high risk', () => pm.expect(j.verification.risk_tier).to.eql('high'));",
+          "pm.test('inspection required', () => pm.expect(j.verification.physical_inspection_required).to.be.true);"
+        ] }
+      }]
+    },
+    {
+      "name": "Draft listing (with photo)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/listings/draft",
+        "body": { "mode": "formdata", "formdata": [
+          { "key": "sku", "value": "OSB 7/16 4x8 sheathing", "type": "text" },
+          { "key": "notes", "value": "Partial pallet, 34 sheets, stored indoors.", "type": "text" },
+          { "key": "image", "type": "file", "src": "" }
+        ] }
+      }
+    },
+    {
+      "name": "Error: missing SKU (422)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/listings/draft",
+        "body": { "mode": "formdata", "formdata": [
+          { "key": "notes", "value": "no sku provided", "type": "text" }
+        ] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": ["pm.test('422 validation error', () => pm.response.to.have.status(422));"] }
+      }]
+    },
+    {
+      "name": "Error: wrong file type (415)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/v1/listings/draft",
+        "body": { "mode": "formdata", "formdata": [
+          { "key": "sku", "value": "test", "type": "text" },
+          { "key": "image", "type": "file", "src": "" }
+        ] }
+      },
+      "description": "Attach a .txt or .pdf as the image to trigger the unsupported-media-type path."
+    }
+  ]
+}

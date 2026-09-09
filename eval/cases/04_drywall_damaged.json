@@ -1,0 +1,11 @@
+{
+  "name": "drywall_water_damage",
+  "sku": "USG Sheetrock 1/2 in x 4 ft x 8 ft",
+  "notes": "18 sheets, corners of bottom 4 show water staining from a warehouse leak. Rest look fine.",
+  "expected": {
+    "category": "drywall",
+    "condition_tier": "damaged",
+    "brand": "USG",
+    "specs": {"thickness": "1/2"}
+  }
+}

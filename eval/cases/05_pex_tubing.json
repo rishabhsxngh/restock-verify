@@ -1,0 +1,12 @@
+{
+  "name": "pex_tubing_new",
+  "sku": "Uponor F1040750 3/4 in PEX-a 300 ft coil",
+  "notes": "Two unopened coils, job finished under budget.",
+  "expected": {
+    "category": "plumbing",
+    "condition_tier": "new_surplus",
+    "brand": "Uponor",
+    "model_number": "F1040750",
+    "specs": {"diameter": "3/4", "length": "300"}
+  }
+}

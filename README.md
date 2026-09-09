@@ -92,33 +92,49 @@ ruff check .
 
 ## Evaluation
 
-Labeled cases live in `eval/cases/`. The harness runs live extractions and
-scores field-level accuracy (category, condition tier, brand/model match,
-spec recall):
+Labeled cases live in `eval/cases/` (six SKU-only cases across electrical,
+plumbing, HVAC, drywall, lumber, and doors). The harness runs live
+extractions and scores field-level accuracy:
 
 ```bash
 python eval/run_eval.py
 ```
 
+Scoring (`eval/scoring.py`, unit-tested offline):
+
+- `category`, `condition_tier`: exact match
+- `brand`: case-insensitive substring; `model_number`: match ignoring punctuation/spacing
+- `specs`: recall over labeled key/value pairs, tolerant of formatting
+  (`"200 A"` matches `"200A"`) and key naming (`amperage` vs `amp_rating`);
+  misses are reported per case so prompt changes can be targeted
+
+## Try it in Postman
+
+Import `postman/ReStock_Verify.postman_collection.json`. It includes the
+health check, a SKU-only draft, a photo draft, and the 422/415 error paths,
+each with response assertions. Set `base_url` to local or your Cloud Run URL.
+
 ## Deploy to Google Cloud Run
+
+One-time setup:
 
 ```bash
 gcloud auth login
 gcloud config set project YOUR_PROJECT_ID
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com secretmanager.googleapis.com
 
-# Store the API key in Secret Manager (not in the image)
-printf '%s' "$ANTHROPIC_API_KEY" | \
-  gcloud secrets create anthropic-api-key --data-file=-
-
-gcloud run deploy restock-verify \
-  --source . \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --set-secrets ANTHROPIC_API_KEY=anthropic-api-key:latest
+# Store the API key in Secret Manager (never in the image)
+printf '%s' "$ANTHROPIC_API_KEY" | gcloud secrets create anthropic-api-key --data-file=-
 ```
 
-Cloud Run builds the Dockerfile, injects `$PORT`, and gives you a public
-HTTPS endpoint.
+Then:
+
+```bash
+./deploy/cloudrun.sh
+```
+
+The script builds from the Dockerfile, injects the secret, scales to zero
+when idle, and prints the public HTTPS URL plus `/healthz` and `/docs` links.
 
 ## Design notes
 

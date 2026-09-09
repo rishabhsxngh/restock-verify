@@ -1,0 +1,11 @@
+{
+  "name": "used_furnace_serviceable",
+  "sku": "Carrier 59SC2B080S17-16 gas furnace",
+  "notes": "Pulled from a remodel after 2 seasons, was running fine at removal. No box.",
+  "expected": {
+    "category": "hvac",
+    "condition_tier": "used_serviceable",
+    "brand": "Carrier",
+    "model_number": "59SC2B080S17-16"
+  }
+}
