@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReStock Verify — lot intake</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #E6E9EC;
+    --surface: #FFFFFF;
+    --ink: #16212B;
+    --ink-2: #4A5866;
+    --line: #CBD2D9;
+    --action: #1F4E79;
+    --action-hover: #173C5E;
+    --low: #2F7D4F;
+    --medium: #B8730F;
+    --high: #C8371D;
+    --radius: 6px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: "Work Sans", -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px; line-height: 1.5;
+    color: var(--ink); background: var(--bg);
+  }
+  a { color: var(--action); }
+
+  header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 20px 28px 0;
+  }
+  header h1 { font-size: 20px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+  header h1 span { font-weight: 400; color: var(--ink-2); }
+  header nav a { font-size: 13px; margin-left: 18px; text-decoration: none; }
+  header nav a:hover { text-decoration: underline; }
+
+  main {
+    display: grid; grid-template-columns: 380px 1fr; gap: 20px;
+    padding: 20px 28px 40px; max-width: 1240px;
+  }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+  .intake { padding: 22px; align-self: start; }
+  .intake h2, .result-head h2 { font-size: 16px; font-weight: 600; margin: 0 0 4px; }
+  .intake p.lead { margin: 0 0 18px; color: var(--ink-2); font-size: 14px; }
+
+  label { display: block; font-size: 13px; font-weight: 500; margin: 14px 0 6px; }
+  input[type=text], textarea {
+    width: 100%; font: inherit; padding: 9px 11px;
+    border: 1px solid var(--line); border-radius: var(--radius); background: #FAFBFC;
+  }
+  input[type=text]:focus, textarea:focus, button:focus-visible, .drop:focus-within {
+    outline: 2px solid var(--action); outline-offset: 1px;
+  }
+  textarea { min-height: 84px; resize: vertical; }
+
+  .drop {
+    position: relative; border: 1.5px dashed var(--line); border-radius: var(--radius);
+    padding: 18px 14px; text-align: center; color: var(--ink-2); font-size: 13.5px;
+    background: #FAFBFC; cursor: pointer;
+  }
+  .drop.over { border-color: var(--action); background: #EEF3F8; }
+  .drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .drop img { max-height: 160px; max-width: 100%; border-radius: 4px; display: block; margin: 0 auto 8px; }
+  .drop .hint strong { color: var(--ink); font-weight: 500; }
+
+  button.primary {
+    margin-top: 18px; width: 100%; padding: 11px; font: inherit; font-weight: 600;
+    color: #fff; background: var(--action); border: 0; border-radius: var(--radius); cursor: pointer;
+  }
+  button.primary:hover { background: var(--action-hover); }
+  button.primary[disabled] { opacity: .6; cursor: progress; }
+
+  .samples { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .samples p { margin: 0 0 8px; font-size: 13px; color: var(--ink-2); }
+  .samples button {
+    display: block; width: 100%; text-align: left; font: inherit; font-size: 13.5px;
+    padding: 8px 10px; margin-bottom: 6px; background: #FAFBFC; border: 1px solid var(--line);
+    border-radius: var(--radius); cursor: pointer; color: var(--ink);
+  }
+  .samples button:hover { border-color: var(--action); }
+  .samples button small { display: block; color: var(--ink-2); }
+
+  .result { min-height: 420px; display: flex; flex-direction: column; }
+  .empty {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    text-align: center; color: var(--ink-2); padding: 40px; font-size: 14.5px;
+  }
+  .empty strong { display: block; color: var(--ink); font-weight: 600; font-size: 16px; margin-bottom: 6px; }
+
+  .draft { display: none; }
+  .draft.show { display: block; }
+  .result-head {
+    padding: 20px 24px; border-left: 8px solid var(--line);
+    border-bottom: 1px solid var(--line); border-radius: var(--radius) 0 0 0;
+  }
+  .result-head.low { border-left-color: var(--low); }
+  .result-head.medium { border-left-color: var(--medium); }
+  .result-head.high { border-left-color: var(--high); }
+  .result-head .sku { font-size: 13px; color: var(--ink-2); margin: 0 0 2px; }
+  .result-head h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+  .risk { display: inline-block; margin-top: 8px; font-size: 13px; font-weight: 600; }
+  .risk.low { color: var(--low); } .risk.medium { color: var(--medium); } .risk.high { color: var(--high); }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 1100px) { .cols { grid-template-columns: 1fr; } }
+  .col { padding: 20px 24px; }
+  .col + .col { border-left: 1px solid var(--line); }
+  @media (max-width: 1100px) { .col + .col { border-left: 0; border-top: 1px solid var(--line); } }
+  .col h3 { font-size: 14px; font-weight: 600; margin: 0 0 12px; }
+
+  table.specs { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.specs th, table.specs td { text-align: left; padding: 6px 0; border-bottom: 1px solid #EEF1F3; vertical-align: top; }
+  table.specs th { font-weight: 500; color: var(--ink-2); width: 42%; padding-right: 12px; }
+
+  .conf { margin-top: 14px; font-size: 13px; color: var(--ink-2); }
+  .conf .bar { height: 6px; background: #EEF1F3; border-radius: 3px; margin-top: 6px; overflow: hidden; }
+  .conf .bar i { display: block; height: 100%; background: var(--action); }
+  .conf.flag { color: var(--high); }
+  .conf.flag .bar i { background: var(--high); }
+
+  ol.steps { margin: 0; padding-left: 22px; }
+  ol.steps li { padding: 4px 0 4px 4px; border-bottom: 1px solid #EEF1F3; }
+  ol.steps li::marker { font-weight: 600; color: var(--ink-2); }
+  .flags { margin: 14px 0 0; padding: 0; list-style: none; font-size: 13.5px; }
+  .flags li { padding: 3px 0; }
+  .flags li::before { content: "•"; margin-right: 8px; color: var(--ink-2); }
+
+  .notes { margin: 12px 0 0; font-size: 14px; color: var(--ink-2); }
+
+  details.raw { border-top: 1px solid var(--line); padding: 12px 24px 16px; font-size: 13px; }
+  details.raw summary { cursor: pointer; color: var(--ink-2); }
+  details.raw pre { margin: 10px 0 0; padding: 12px; background: #F3F5F7; border-radius: var(--radius); overflow: auto; font-size: 12.5px; }
+
+  .error { display: none; margin: 16px 24px 0; padding: 12px 14px; border-radius: var(--radius);
+           background: #FBEAE6; color: #7A2412; font-size: 14px; }
+  .error.show { display: block; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .draft.show { animation: rise .25s ease-out; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>ReStock Verify <span>— lot intake</span></h1>
+  <nav><a href="/docs">API reference</a><a href="https://github.com/rishabhsxngh/restock-verify">Source</a></nav>
+</header>
+
+<main>
+  <section class="panel intake" aria-labelledby="intake-h">
+    <h2 id="intake-h">Submit a lot</h2>
+    <p class="lead">A photo and SKU are read into a listing draft. The verification steps are set by rule, not by the model.</p>
+
+    <label for="sku">SKU or product name</label>
+    <input id="sku" type="text" placeholder="e.g. Square D QO140M200PC" autocomplete="off">
+
+    <label for="notes">Seller notes</label>
+    <textarea id="notes" placeholder="Quantity, where it's stored, why it's surplus, anything about condition."></textarea>
+
+    <label>Photo (optional)</label>
+    <div class="drop" id="drop" tabindex="0">
+      <input id="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" aria-label="Choose a photo">
+      <div id="preview"></div>
+      <div class="hint"><strong>Drop a photo here</strong> or click to choose. JPG, PNG, WebP, up to 8 MB.</div>
+    </div>
+
+    <button class="primary" id="submit">Draft listing</button>
+
+    <div class="samples">
+      <p>No lot handy? Try one of these:</p>
+      <button type="button" data-sku="Square D QO140M200PC" data-notes="Factory sealed, overstock from a cancelled commercial order.">Square D 200A load center<small>Electrical, new in box</small></button>
+      <button type="button" data-sku="USG Sheetrock 1/2 in x 4 ft x 8 ft" data-notes="18 sheets, corners of bottom 4 show water staining from a warehouse leak. Rest look fine.">USG drywall, partial pallet<small>Mixed condition, some water damage</small></button>
+      <button type="button" data-sku="Behr Premium Plus interior eggshell, 5 gal" data-notes="Two unopened buckets, customer ordered the wrong color.">Behr interior paint, 5 gal<small>Low-risk overstock</small></button>
+    </div>
+  </section>
+
+  <section class="panel result" aria-live="polite">
+    <div class="error" id="error"></div>
+    <div class="empty" id="empty">
+      <div><strong>Nothing drafted yet</strong>Submit a lot on the left. The draft and its verification plan will appear here.</div>
+    </div>
+
+    <div class="draft" id="draft">
+      <div class="result-head" id="head">
+        <p class="sku" id="r-sku"></p>
+        <h2 id="r-title"></h2>
+        <span class="risk" id="r-risk"></span>
+      </div>
+
+      <div class="cols">
+        <div class="col">
+          <h3>Listing draft</h3>
+          <table class="specs" id="r-specs"></table>
+          <p class="notes" id="r-notes"></p>
+          <div class="conf" id="r-conf"><span id="r-conf-label"></span><div class="bar"><i id="r-conf-bar"></i></div></div>
+        </div>
+        <div class="col">
+          <h3>Verification before sale</h3>
+          <ol class="steps" id="r-steps"></ol>
+          <ul class="flags" id="r-flags"></ul>
+        </div>
+      </div>
+
+      <details class="raw"><summary>Raw API response</summary><pre id="r-raw"></pre></details>
+    </div>
+  </section>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const drop = $('drop'), fileInput = $('image'), preview = $('preview');
+
+  const pretty = (s) => String(s).replaceAll('_', ' ');
+  const riskCopy = { low: 'Low risk — self-certified listing', medium: 'Medium risk — documentation required', high: 'High risk — physical inspection required' };
+
+  // Photo preview
+  function showFile(file) {
+    if (!file) { preview.innerHTML = ''; return; }
+    const url = URL.createObjectURL(file);
+    preview.innerHTML = `<img src="${url}" alt="Selected photo">`;
+  }
+  fileInput.addEventListener('change', () => showFile(fileInput.files[0]));
+  ['dragenter', 'dragover'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', ev => {
+    const f = ev.dataTransfer.files[0];
+    if (f) { const dt = new DataTransfer(); dt.items.add(f); fileInput.files = dt.files; showFile(f); }
+  });
+
+  // Sample lots
+  document.querySelectorAll('.samples button').forEach(b => b.addEventListener('click', () => {
+    $('sku').value = b.dataset.sku; $('notes').value = b.dataset.notes;
+    fileInput.value = ''; showFile(null); $('sku').focus();
+  }));
+
+  function setError(msg) { const e = $('error'); e.textContent = msg || ''; e.classList.toggle('show', !!msg); }
+
+  function render(d) {
+    const L = d.listing, V = d.verification, tier = V.risk_tier;
+    $('r-sku').textContent = d.sku;
+    $('r-title').textContent = L.title;
+    const head = $('head'); head.className = 'result-head ' + tier;
+    const risk = $('r-risk'); risk.className = 'risk ' + tier; risk.textContent = riskCopy[tier] || pretty(tier);
+
+    const rows = [['Category', pretty(L.category)], ['Condition', pretty(L.condition_tier)]];
+    if (L.brand) rows.push(['Brand', L.brand]);
+    if (L.model_number) rows.push(['Model', L.model_number]);
+    if (L.quantity_estimate) rows.push(['Quantity (from photo)', L.quantity_estimate]);
+    Object.entries(L.specs || {}).forEach(([k, v]) => rows.push([pretty(k), v]));
+    $('r-specs').innerHTML = rows.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('');
+    $('r-notes').textContent = L.condition_notes;
+
+    const pct = Math.round(L.confidence * 100);
+    const conf = $('r-conf'); conf.classList.toggle('flag', L.confidence < 0.7);
+    $('r-conf-label').textContent = `Model confidence ${pct}%` + (L.confidence < 0.7 ? ' — below the 70% gate, routed to manual review' : '');
+    $('r-conf-bar').style.width = pct + '%';
+
+    $('r-steps').innerHTML = V.required_steps.map(s => `<li>${s}</li>`).join('');
+    const flags = [];
+    flags.push(V.physical_inspection_required ? 'Physical inspection: required' : 'Physical inspection: not required');
+    flags.push(V.warranty_attestation_required ? 'Warranty attestation: required' : 'Warranty attestation: not required');
+    $('r-flags').innerHTML = flags.map(f => `<li>${f}</li>`).join('');
+
+    $('r-raw').textContent = JSON.stringify(d, null, 2);
+    $('empty').style.display = 'none';
+    const draft = $('draft'); draft.classList.remove('show'); void draft.offsetWidth; draft.classList.add('show');
+  }
+
+  $('submit').addEventListener('click', async () => {
+    const sku = $('sku').value.trim();
+    if (!sku) { setError('Enter a SKU or product name to draft a listing.'); $('sku').focus(); return; }
+    setError('');
+    const btn = $('submit'); btn.disabled = true; btn.textContent = 'Reading lot…';
+
+    const fd = new FormData();
+    fd.append('sku', sku);
+    if ($('notes').value.trim()) fd.append('notes', $('notes').value.trim());
+    if (fileInput.files[0]) fd.append('image', fileInput.files[0]);
+
+    try {
+      const res = await fetch('/v1/listings/draft', { method: 'POST', body: fd });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail || body);
+        throw new Error(`${res.status}: ${detail}`);
+      }
+      render(body);
+    } catch (err) {
+      setError(`Could not draft this lot. ${err.message}`);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Draft listing';
+    }
+  });
+</script>
+</body>
+</html>

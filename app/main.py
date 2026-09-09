@@ -5,8 +5,10 @@ deterministic verification plan.
 """
 
 import logging
+import pathlib
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse
 
 from app import extraction
 from app.risk import build_verification_plan
@@ -19,6 +21,7 @@ VERSION = "0.1.0"
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 MAX_IMAGE_BYTES = 8 * 1024 * 1024  # 8 MB
+STATIC_DIR = pathlib.Path(__file__).parent / "static"
 
 app = FastAPI(
     title="ReStock Verify",
@@ -39,6 +42,12 @@ def get_llm_client(request: Request):
         client = extraction.get_client()
         request.app.state.llm_client = client
     return client
+
+
+@app.get("/", include_in_schema=False)
+def index() -> FileResponse:
+    """Intake screen: submit a lot, see the draft and verification plan."""
+    return FileResponse(STATIC_DIR / "index.html")
 
 
 @app.get("/healthz", response_model=HealthResponse)

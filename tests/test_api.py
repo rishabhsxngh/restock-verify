@@ -103,3 +103,10 @@ def test_model_fenced_json_is_tolerated():
         assert resp.status_code == 200
     finally:
         app.dependency_overrides.clear()
+
+
+def test_index_serves_intake_ui():
+    resp = TestClient(app).get("/")
+    assert resp.status_code == 200
+    assert "text/html" in resp.headers["content-type"]
+    assert "Submit a lot" in resp.text

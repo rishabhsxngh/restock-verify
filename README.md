@@ -39,6 +39,9 @@ what it is good at — reading messy real-world inputs into structured data.
 
 ## Run locally
 
+The API ships with an intake screen at `/` (photo + SKU in, listing draft and
+verification plan out) and interactive API docs at `/docs`.
+
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
