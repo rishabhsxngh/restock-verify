@@ -43,6 +43,10 @@ Rules:
 - If no photo is provided, infer what you can from the SKU/notes, set condition_tier
   to "new_surplus" only if the notes support it, otherwise your best supported guess,
   and lower confidence accordingly.
+- Mixed-condition lots: tier the whole lot by its WORST observed condition (any
+  water damage, breakage, or defect on any portion -> "damaged") and describe the
+  split in condition_notes. Buyers can accept a downgrade; they cannot un-buy a
+  surprise.
 - Never invent specs you cannot support from the inputs. Fewer correct specs beat
   many guessed ones."""
 
