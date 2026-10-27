@@ -76,7 +76,7 @@
   button.primary:hover { background: var(--action-hover); }
   button.primary[disabled] { opacity: .6; cursor: progress; }
 
-  .samples { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .samples { margin: 0 0 6px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
   .samples p { margin: 0 0 8px; font-size: 13px; color: var(--ink-2); }
   .samples button {
     display: block; width: 100%; text-align: left; font: inherit; font-size: 13.5px;
@@ -158,6 +158,14 @@
     <h2 id="intake-h">Submit a lot</h2>
     <p class="lead">A photo and SKU are read into a listing draft. The verification steps are set by rule, not by the model.</p>
 
+    <div class="samples">
+      <p><strong>Try an example</strong>: one click runs it, no photo needed.</p>
+      <button type="button" data-sku="Square D QO140M200PC" data-notes="Factory sealed, overstock from a cancelled commercial order.">Square D 200A load center<small>Electrical, new in box</small></button>
+      <button type="button" data-sku="USG Sheetrock 1/2 in x 4 ft x 8 ft" data-notes="18 sheets, corners of bottom 4 show water staining from a warehouse leak. Rest look fine.">USG drywall, partial pallet<small>Mixed condition, some water damage</small></button>
+      <button type="button" data-sku="Carrier 59SC2B080S17-16 gas furnace" data-notes="Pulled from a remodel after 2 seasons, was running fine at removal. No box.">Carrier gas furnace, used<small>HVAC, needs inspection</small></button>
+      <button type="button" data-sku="Behr Premium Plus interior eggshell, 5 gal" data-notes="Two unopened buckets, customer ordered the wrong color.">Behr interior paint, 5 gal<small>Low-risk overstock</small></button>
+    </div>
+
     <label for="sku">SKU or product name</label>
     <input id="sku" type="text" placeholder="e.g. Square D QO140M200PC" autocomplete="off">
 
@@ -173,12 +181,6 @@
 
     <button class="primary" id="submit">Draft listing</button>
 
-    <div class="samples">
-      <p>No lot handy? Try one of these:</p>
-      <button type="button" data-sku="Square D QO140M200PC" data-notes="Factory sealed, overstock from a cancelled commercial order.">Square D 200A load center<small>Electrical, new in box</small></button>
-      <button type="button" data-sku="USG Sheetrock 1/2 in x 4 ft x 8 ft" data-notes="18 sheets, corners of bottom 4 show water staining from a warehouse leak. Rest look fine.">USG drywall, partial pallet<small>Mixed condition, some water damage</small></button>
-      <button type="button" data-sku="Behr Premium Plus interior eggshell, 5 gal" data-notes="Two unopened buckets, customer ordered the wrong color.">Behr interior paint, 5 gal<small>Low-risk overstock</small></button>
-    </div>
   </section>
 
   <section class="panel result" aria-live="polite">
@@ -237,7 +239,7 @@
   // Sample lots
   document.querySelectorAll('.samples button').forEach(b => b.addEventListener('click', () => {
     $('sku').value = b.dataset.sku; $('notes').value = b.dataset.notes;
-    fileInput.value = ''; showFile(null); $('sku').focus();
+    fileInput.value = ''; showFile(null); $('submit').click();
   }));
 
   function setError(msg) { const e = $('error'); e.textContent = msg || ''; e.classList.toggle('show', !!msg); }
